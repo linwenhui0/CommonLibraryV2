@@ -2,10 +2,12 @@ package com.hdlang.android.v2.library.demo.activity
 
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.reflect.TypeToken
 import com.hdlang.android.v2.library.demo.R
 import com.hdlang.android.v2.library.demo.model.UserBean
+import com.hdlang.android.v2.library.utils.ImageUtils
 import com.hdlang.android.v2.library.utils.JsonUtils
 import org.json.JSONArray
 import org.json.JSONObject
@@ -55,5 +57,13 @@ class JsonActivity : AppCompatActivity() {
         obj.put("phone", phone)
         obj.put("email", email)
         return obj
+    }
+
+    fun onLoadImageClick(v: View) {
+        val image = findViewById<ImageView>(R.id.image)
+        ImageUtils.load(
+            url = "https://t7.baidu.com/it/u=3676218341,3686214618&fm=193&f=GIF",
+            v = image
+        )
     }
 }
