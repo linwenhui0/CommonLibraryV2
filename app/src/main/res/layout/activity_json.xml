@@ -20,6 +20,12 @@
             android:layout_height="wrap_content"
             android:onClick="onParseListClick"
             android:text="解析列表" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onPostClick"
+            android:text="测试Post" />
     </LinearLayout>
 
     <Button

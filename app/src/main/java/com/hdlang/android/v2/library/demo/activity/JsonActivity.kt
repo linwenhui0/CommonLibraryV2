@@ -8,12 +8,18 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.reflect.TypeToken
 import com.hdlang.android.v2.library.demo.R
+import com.hdlang.android.v2.library.demo.logic.network.Request
+import com.hdlang.android.v2.library.demo.logic.network.WeatherApi
 import com.hdlang.android.v2.library.demo.model.UserBean
 import com.hdlang.android.v2.library.logic.common.download.DownloadHandler
+import com.hdlang.android.v2.library.model.NetworkData
 import com.hdlang.android.v2.library.utils.ImageUtils
 import com.hdlang.android.v2.library.utils.JsonUtils
 import com.hdlang.android.v2.library.utils.StringUtils
 import com.orhanobut.logger.Logger
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -48,6 +54,17 @@ class JsonActivity : AppCompatActivity() {
         val list = JsonUtils.parseObject(array.toString(), object : TypeToken<List<UserBean>>() {})
         println(list?.size)
         println(list?.get(0))
+    }
+
+    fun onPostClick(v:View){
+        GlobalScope.launch(context = Dispatchers.IO) {
+            val api = WeatherApi()
+            val request = Request()
+            val it = request.sync(String::class.java,api)
+            if (it is NetworkData){
+                Logger.i("code(${it.code}) data(${it.data})")
+            }
+        }
     }
 
     private fun createUserBeanData(
