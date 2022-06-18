@@ -4,17 +4,29 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <Button
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="onParseObjectClick"
-        android:text="解析对象" />
+        android:orientation="horizontal">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onParseObjectClick"
+            android:text="解析对象" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onParseListClick"
+            android:text="解析列表" />
+    </LinearLayout>
 
     <Button
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="onParseListClick"
-        android:text="解析列表" />
+        android:onClick="onWechatDownloadClick"
+        android:text="下载微信" />
 
     <Button
         android:layout_width="match_parent"
