@@ -7,7 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 
 abstract class BaseFragment : Fragment() {
-    private var currentActivity: FragmentActivity? = null
+    var currentActivity: FragmentActivity? = null
         get() {
             if (field != null) {
                 return field
@@ -22,11 +22,15 @@ abstract class BaseFragment : Fragment() {
         currentActivity = activity
     }
 
-    protected fun setupToolbar(toolbar: Toolbar) {
+    protected fun setupToolbar(toolbar: Toolbar?) {
         if (currentActivity is AppCompatActivity) {
             val activity = currentActivity as AppCompatActivity
             activity.setSupportActionBar(toolbar)
         }
+    }
+
+    protected fun <T> findViewById(id: Int): T? {
+        return view?.findViewById(id)
     }
 
 }
