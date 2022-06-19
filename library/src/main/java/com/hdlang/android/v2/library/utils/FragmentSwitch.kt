@@ -4,6 +4,19 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 
 object FragmentSwitch {
+
+    fun <T : Fragment> getFragment(fragmentManager: FragmentManager, clazz: Class<T>): T? {
+        val fragments = fragmentManager.fragments
+        if (fragments.size > 0) {
+            for (f in fragments) {
+                if (f.javaClass.name == clazz.name) {
+                    return f as T
+                }
+            }
+        }
+        return null
+    }
+
     /**
      * 显示或隐藏Fragment
      */
