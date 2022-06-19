@@ -1,11 +1,9 @@
 package com.hdlang.android.v2.library.view.recycler.adapter
 
-import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.hdlang.android.v2.library.view.recycler.RecyclerViewHolder
 import java.util.Collection
 
-abstract class ObjectBaseRecyclerAdapter<T, VM : RecyclerViewHolder> : RecyclerView.Adapter<VM>() {
+abstract class ObjectBaseRecyclerAdapter<T, VM : RecyclerView.ViewHolder> : RecyclerView.Adapter<VM>() {
     protected val list = ArrayList<T>()
 
     fun add(data: T): Boolean {
@@ -30,11 +28,6 @@ abstract class ObjectBaseRecyclerAdapter<T, VM : RecyclerViewHolder> : RecyclerV
 
     fun clear() {
         list.clear()
-    }
-
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VM {
-        TODO("Not yet implemented")
     }
 
 
