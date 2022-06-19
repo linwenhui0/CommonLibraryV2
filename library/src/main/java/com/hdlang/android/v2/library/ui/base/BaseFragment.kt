@@ -26,6 +26,7 @@ abstract class BaseFragment : Fragment() {
         if (currentActivity is AppCompatActivity) {
             val activity = currentActivity as AppCompatActivity
             activity.setSupportActionBar(toolbar)
+            toolbar?.title = ""
         }
     }
 
