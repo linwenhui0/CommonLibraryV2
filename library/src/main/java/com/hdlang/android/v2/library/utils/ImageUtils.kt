@@ -7,8 +7,8 @@ import com.bumptech.glide.request.RequestOptions
 
 object ImageUtils {
 
-    fun load(url: String?, v: ImageView, placeholder: Int? = 0, error: Int? = 0) {
-        if (StringUtils.isNotEmpty(url)) {
+    fun load(url: String?, v: ImageView?, placeholder: Int? = 0, error: Int? = 0) {
+        if (StringUtils.isNotEmpty(url) && v != null) {
             val options = RequestOptions()
             if (placeholder != null && placeholder > 0) {
                 options.placeholder(placeholder)
@@ -20,8 +20,8 @@ object ImageUtils {
         }
     }
 
-    fun load(url: String?, v: ImageView, placeholder: Drawable?, error: Drawable?) {
-        if (StringUtils.isNotEmpty(url)) {
+    fun load(url: String?, v: ImageView?, placeholder: Drawable?, error: Drawable?) {
+        if (StringUtils.isNotEmpty(url) && v != null) {
             val options = RequestOptions()
             if (placeholder != null) {
                 options.placeholder(placeholder)
