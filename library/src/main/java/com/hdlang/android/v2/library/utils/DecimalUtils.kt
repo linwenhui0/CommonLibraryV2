@@ -124,7 +124,7 @@ object DecimalUtils {
             moneyDecimalFormat.minimumFractionDigits = 0
             moneyDecimalFormat.maximumFractionDigits = 2
             moneyDecimalFormat.roundingMode = RoundingMode.UP
-            return moneyDecimalFormat.format(divide(arrayOf(money.toString(), "100")))
+            return moneyDecimalFormat.format(divide(arrayOf(money.toString(), "100")).toDouble())
         }
         return "0"
     }
