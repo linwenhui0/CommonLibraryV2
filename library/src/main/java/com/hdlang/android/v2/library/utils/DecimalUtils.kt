@@ -24,7 +24,7 @@ object DecimalUtils {
         if (decimals.isNotEmpty()) {
             result = decimals[0]
             val len = decimals.size
-            for (index in 0 until len) {
+            for (index in 1 until len) {
                 result = result.add(decimals[index])
             }
         }
@@ -53,7 +53,7 @@ object DecimalUtils {
         if (decimals.isNotEmpty()) {
             result = decimals[0]
             val len = decimals.size
-            for (index in 0 until len) {
+            for (index in 1 until len) {
                 result = result.subtract(decimals[index])
             }
         }
@@ -82,7 +82,7 @@ object DecimalUtils {
         if (decimals.isNotEmpty()) {
             result = decimals[0]
             val len = decimals.size
-            for (index in 0 until len) {
+            for (index in 1 until len) {
                 result = result.multiply(decimals[index])
             }
         }
@@ -111,7 +111,7 @@ object DecimalUtils {
         if (decimals.isNotEmpty()) {
             result = decimals[0]
             val len = decimals.size
-            for (index in 0 until len) {
+            for (index in 1 until len) {
                 result = result.divide(decimals[index])
             }
         }
