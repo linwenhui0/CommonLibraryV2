@@ -118,11 +118,14 @@ object DecimalUtils {
         return result
     }
 
-    fun moneyFormat(money: Long): String {
-        val moneyDecimalFormat = DecimalFormat("0.00")
-        moneyDecimalFormat.minimumFractionDigits = 0
-        moneyDecimalFormat.maximumFractionDigits = 2
-        moneyDecimalFormat.roundingMode = RoundingMode.UP
-        return moneyDecimalFormat.format(divide(arrayOf(money.toString(), "100")))
+    fun moneyFormat(money: Long?): String {
+        if (money != null) {
+            val moneyDecimalFormat = DecimalFormat("0.00")
+            moneyDecimalFormat.minimumFractionDigits = 0
+            moneyDecimalFormat.maximumFractionDigits = 2
+            moneyDecimalFormat.roundingMode = RoundingMode.UP
+            return moneyDecimalFormat.format(divide(arrayOf(money.toString(), "100")))
+        }
+        return "0"
     }
 }
