@@ -1,7 +1,6 @@
 package com.hdlang.android.v2.library.view.recycler.adapter
 
 import androidx.recyclerview.widget.RecyclerView
-import java.util.Collection
 
 abstract class ObjectBaseRecyclerAdapter<T, VM : RecyclerView.ViewHolder> :
     RecyclerView.Adapter<VM>() {
