@@ -32,6 +32,14 @@ abstract class BaseRankAdapter<T> : IAdapter {
         list.clear()
     }
 
+    fun get(position: Int): T? {
+        try {
+            return list[position]
+        } catch (e: Exception) {
+        }
+        return null
+    }
+
     private val mDataSetObservable: DataSetObservable by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED){
         DataSetObservable()
     }
