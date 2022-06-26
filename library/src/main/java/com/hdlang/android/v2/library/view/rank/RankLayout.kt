@@ -10,7 +10,7 @@ import com.hdlang.android.v2.library.view.rank.adapter.BaseRankAdapter
  * 排行版排序
  */
 class RankLayout : LinearLayout {
-    private var adapter: BaseRankAdapter? = null
+    private var adapter: BaseRankAdapter<*>? = null
     private val observer = object : DataSetObserver() {
         override fun onChanged() {
             super.onChanged()
@@ -33,7 +33,7 @@ class RankLayout : LinearLayout {
         orientation = HORIZONTAL
     }
 
-    fun <T> setAdapter(adapter: BaseRankAdapter) {
+    fun <T> setAdapter(adapter: BaseRankAdapter<T>) {
         this.adapter?.unregisterDataSetObserver(observer)
         adapter.registerDataSetObserver(observer)
         this.adapter = adapter
