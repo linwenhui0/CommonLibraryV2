@@ -19,6 +19,7 @@ import com.hdlang.android.v2.library.utils.StringUtils
 import com.orhanobut.logger.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
@@ -56,14 +57,30 @@ class JsonActivity : AppCompatActivity() {
         println(list?.get(0))
     }
 
-    fun onPostClick(v:View){
+    fun onPostClick(v: View) {
+        val activity = this
+//        GlobalScope.launch(context = Dispatchers.Main) {
+            val api = WeatherApi()
+            val request = Request()
+            request.asyncWithLiveData(String::class.java, api).observe(activity) {
+                if (it is NetworkData) {
+                    Logger.i("code(${it.code}) data(${it.data})")
+                }
+            }
+//        }
         GlobalScope.launch(context = Dispatchers.IO) {
             val api = WeatherApi()
             val request = Request()
-            val it = request.sync(String::class.java,api)
-            if (it is NetworkData){
-                Logger.i("code(${it.code}) data(${it.data})")
-            }
+//            val it = request.sync(String::class.java,api)
+//            if (it is NetworkData){
+//                Logger.i("code(${it.code}) data(${it.data})")
+//            }
+
+//            request.asyncWithFlow(String::class.java, api).collect {
+//                if (it is NetworkData) {
+//                    Logger.i("code(${it.code}) data(${it.data})")
+//                }
+//            }
         }
     }
 
