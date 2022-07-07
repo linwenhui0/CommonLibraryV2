@@ -5,8 +5,8 @@ import com.hdlang.android.v2.library.logic.network.api.BaseApi
 import com.hdlang.android.v2.library.logic.network.response.BaseResponse
 import com.hdlang.android.v2.library.model.BaseNetworkData
 import com.hdlang.android.v2.library.utils.StringUtils
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import com.orhanobut.logger.Logger
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
@@ -70,11 +70,13 @@ abstract class BaseRequest {
         return client.newCall(request)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     abstract fun <T> getResponse(
         clazz: Class<T>,
         api: BaseApi,
-        liveData: MutableLiveData<BaseNetworkData<T>>?,
-        flow: ProducerScope<BaseNetworkData<T>>?
+        liveData: MutableLiveData<BaseNetworkData<T>>? = null,
+        producer: ProducerScope<BaseNetworkData<T>>? = null,
+        continuation: CancellableContinuation<BaseNetworkData<T>>? = null
     ): BaseResponse<T>
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -84,22 +86,31 @@ abstract class BaseRequest {
     ): MutableLiveData<BaseNetworkData<T>> {
         val liveData = MutableLiveData<BaseNetworkData<T>>()
         val call = request(api)
-        call.enqueue(getResponse(clazz, api, liveData, null))
+        call.enqueue(getResponse(clazz = clazz, api = api, liveData = liveData))
         return liveData
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun <T> asyncWithFlow(clazz: Class<T>, api: BaseApi): Flow<BaseNetworkData<T>> = callbackFlow {
         val call = request(api)
-        call.enqueue(getResponse(clazz, api, null, this))
-        awaitClose()
+        call.enqueue(getResponse(clazz = clazz, api = api, producer = this))
+        awaitClose {
+        }
     }.flowOn(context = Dispatchers.IO)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend fun <T> asyncWithSuspend(clazz: Class<T>, api: BaseApi): BaseNetworkData<T> {
+        return suspendCancellableCoroutine {
+            val call = request(api)
+            call.enqueue(getResponse(clazz = clazz, api = api, continuation = it))
+        }
+    }
 
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun <T> sync(clazz: Class<T>, api: BaseApi): BaseNetworkData<T>? {
         val call = request(api)
-        val responseHandler = getResponse(clazz, api, null, null)
+        val responseHandler = getResponse(clazz, api)
         return try {
             val response = call.execute()
             responseHandler.handleResponse(response)

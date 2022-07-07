@@ -6,10 +6,8 @@ import com.hdlang.android.v2.library.model.BaseNetworkData
 import com.hdlang.android.v2.library.model.NetworkData
 import com.hdlang.android.v2.library.model.NetworkDataException
 import com.hdlang.android.v2.library.model.NetworkDataIntercept
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ProducerScope
-import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
@@ -19,7 +17,8 @@ abstract class BaseResponse<T>(
     private val clazz: Class<T>,
     private val api: BaseApi,
     private val liveData: MutableLiveData<BaseNetworkData<T>>?,
-    private val producer: ProducerScope<BaseNetworkData<T>>?
+    private val producer: ProducerScope<BaseNetworkData<T>>?,
+    private val continuation: CancellableContinuation<BaseNetworkData<T>>?
 ) : Callback {
 
     abstract fun parse(clazz: Class<T>, response: Response): BaseNetworkData<T>
@@ -72,11 +71,14 @@ abstract class BaseResponse<T>(
         handlerCallback(handleResponse(response))
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun handlerCallback(model: BaseNetworkData<T>) {
         liveData?.postValue(model)
+        continuation?.resume(model,null)
         if (producer != null) {
             GlobalScope.launch(context = Dispatchers.Main) {
                 producer?.send(model)
+                producer?.close()
             }
         }
     }

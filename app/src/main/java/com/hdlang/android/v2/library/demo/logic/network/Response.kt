@@ -9,6 +9,7 @@ import com.hdlang.android.v2.library.model.NetworkDataException
 import com.hdlang.android.v2.library.model.NetworkException
 import com.hdlang.android.v2.library.utils.JsonUtils
 import com.hdlang.android.v2.library.utils.StringUtils
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.flow.FlowCollector
 import okhttp3.Response
@@ -17,8 +18,9 @@ class Response<T>(
     clazz: Class<T>,
     api: BaseApi,
     liveData: MutableLiveData<BaseNetworkData<T>>?,
-    producer: ProducerScope<BaseNetworkData<T>>?
-) : BaseResponse<T>(clazz, api, liveData, producer) {
+    producer: ProducerScope<BaseNetworkData<T>>?,
+    continuation: CancellableContinuation<BaseNetworkData<T>>?
+) : BaseResponse<T>(clazz, api, liveData, producer, continuation) {
     override fun parse(clazz: Class<T>, response: Response): BaseNetworkData<T> {
         if (response.isSuccessful) {
             val body = response.body?.string()
