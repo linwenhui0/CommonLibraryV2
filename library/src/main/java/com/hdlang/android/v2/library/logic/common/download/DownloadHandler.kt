@@ -9,94 +9,28 @@ import com.hdlang.android.v2.library.model.DownloadTaskResult
 import com.hdlang.android.v2.library.utils.FileUtils
 import com.hdlang.android.v2.library.utils.StringUtils
 import com.orhanobut.logger.Logger
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.FlowCollector
 import java.io.File
 import java.io.InputStream
-import kotlin.Exception
 
-class DownloadHandler constructor(private val context: Context) {
-
-    private val downloadManager: DownloadManager? by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
+open class DownloadHandler(protected val context: Context) {
+    protected val downloadManager: DownloadManager? by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
         context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager?
     }
-    val downloadTaskResultLiveData: MutableLiveData<DownloadTaskResult> = MutableLiveData()
 
     /**
      * @param saveFileName 下载后文件保存位置
      * @param allowedOverRoaming 移动网络情况下是否允许漫游
      * @param allowedNetworkTypes 允许在何种网络下进行下载
      */
-    fun download(
-        url: String, saveFileName: String,
-        needCheckFileMD5: Boolean = false,
-        fileMD5: String = "",
-        showNotification: Boolean = false,
-        allowedOverRoaming: Boolean = false,
-        allowedNetworkTypes: Int = DownloadManager.Request.NETWORK_WIFI
-    ) {
-        GlobalScope.launch(context = Dispatchers.IO) {
-            val downloadTaskResult = getDownloadTask(url)
-            if (downloadTaskResult != null) {
-                if (downloadTaskResult.status == DownloadManager.STATUS_SUCCESSFUL) {
-                    if (needCheckFileMD5) {
-                        if (downloadTaskResult.md5 == fileMD5) {
-                            downloadTaskResultLiveData.postValue(downloadTaskResult)
-                        } else {
-                            deleteTask(downloadTaskResult)
-                            downloadTask(
-                                url,
-                                saveFileName,
-                                showNotification,
-                                allowedOverRoaming,
-                                allowedNetworkTypes
-                            )
-                        }
-                    } else {
-                        deleteTask(downloadTaskResult)
-                        downloadTask(
-                            url,
-                            saveFileName,
-                            showNotification,
-                            allowedOverRoaming,
-                            allowedNetworkTypes
-                        )
-                    }
-                } else {
-                    deleteTask(downloadTaskResult)
-                    downloadTask(
-                        url,
-                        saveFileName,
-                        showNotification,
-                        allowedOverRoaming,
-                        allowedNetworkTypes
-                    )
-                }
-            } else {
-                downloadTask(
-                    url,
-                    saveFileName,
-                    showNotification,
-                    allowedOverRoaming,
-                    allowedNetworkTypes
-                )
-            }
-        }
-    }
-
-
-    /**
-     * @param saveFileName 下载后文件保存位置
-     * @param allowedOverRoaming 移动网络情况下是否允许漫游
-     * @param allowedNetworkTypes 允许在何种网络下进行下载
-     */
-    private fun downloadTask(
+    protected suspend fun downloadTask(
         url: String,
         saveFileName: String,
         showNotification: Boolean = false,
         allowedOverRoaming: Boolean = false,
-        allowedNetworkTypes: Int = DownloadManager.Request.NETWORK_WIFI
+        allowedNetworkTypes: Int = DownloadManager.Request.NETWORK_WIFI,
+        flowCollector: FlowCollector<DownloadTaskResult>? = null,
+        liveData: MutableLiveData<DownloadTaskResult>? = null
     ) {
         val request = DownloadManager.Request(Uri.parse(url))
         request.setAllowedOverRoaming(allowedOverRoaming)
@@ -109,32 +43,48 @@ class DownloadHandler constructor(private val context: Context) {
         val saveFile =
             File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), saveFileName)
         request.setDestinationUri(Uri.fromFile(saveFile))
-        val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager?
         val downloadId = downloadManager?.enqueue(request)
         if (downloadId != null && downloadId > 0) {
-            setupFlow(url = url, downloadId = downloadId)
+            setupFlow(
+                url = url,
+                downloadId = downloadId,
+                flowCollector = flowCollector,
+                liveData = liveData
+            )
+        } else {
+            val downloadTaskResult =
+                DownloadTaskResult(id = 0, url = url, status = DownloadManager.STATUS_FAILED)
+            liveData?.postValue(downloadTaskResult)
+            flowCollector?.emit(downloadTaskResult)
         }
     }
 
-    private fun setupFlow(url: String, downloadId: Long) {
-        GlobalScope.launch(context = Dispatchers.IO) {
-            while (true) {
-                val downloadTaskResult = queryStatus(url = url, downloadId = downloadId)
-                if (downloadTaskResult == null) {
-                    break
-                } else {
-                    if (downloadTaskResult.status == DownloadManager.STATUS_RUNNING) {
-                        downloadTaskResultLiveData.postValue(downloadTaskResult)
-                        try {
-                            Thread.sleep(1000)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                        continue
-                    } else if (downloadTaskResult.status == DownloadManager.STATUS_SUCCESSFUL) {
-                        downloadTaskResultLiveData.postValue(downloadTaskResult)
-                        break
+    private suspend fun setupFlow(
+        url: String,
+        downloadId: Long,
+        flowCollector: FlowCollector<DownloadTaskResult>? = null,
+        liveData: MutableLiveData<DownloadTaskResult>? = null
+    ) {
+        while (true) {
+            val downloadTaskResult = queryStatus(url = url, downloadId = downloadId)
+            if (downloadTaskResult == null) {
+                break
+            } else {
+                if (downloadTaskResult.status == DownloadManager.STATUS_RUNNING) {
+                    flowCollector?.emit(downloadTaskResult)
+                    liveData?.postValue(downloadTaskResult)
+                    try {
+                        Thread.sleep(500)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
+                    continue
+                } else if (downloadTaskResult.status == DownloadManager.STATUS_FAILED ||
+                    downloadTaskResult.status == DownloadManager.STATUS_SUCCESSFUL
+                ) {
+                    flowCollector?.emit(downloadTaskResult)
+                    liveData?.postValue(downloadTaskResult)
+                    break
                 }
             }
         }
@@ -143,7 +93,7 @@ class DownloadHandler constructor(private val context: Context) {
     /**
      * 删除任务
      */
-    private fun deleteTask(downloadTaskResult: DownloadTaskResult) {
+    protected fun deleteTask(downloadTaskResult: DownloadTaskResult) {
         if (StringUtils.isNotEmpty(downloadTaskResult.fileLocalUri)) {
             val uri = Uri.parse(downloadTaskResult.fileLocalUri)
             val path = uri.path
@@ -152,13 +102,11 @@ class DownloadHandler constructor(private val context: Context) {
             }
         }
         if (downloadTaskResult.id > 0) {
-            val downloadManager =
-                context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager?
             downloadManager?.remove(downloadTaskResult.id)
         }
     }
 
-    private fun getDownloadTask(
+    protected fun getDownloadTask(
         url: String
     ): DownloadTaskResult? {
         var downloadTaskResult: DownloadTaskResult? = null
@@ -180,7 +128,6 @@ class DownloadHandler constructor(private val context: Context) {
                             cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
                         val total =
                             cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
-                        Logger.d("uri:$uri,localUri:$localUri,status:$status,current=$current,total=$total")
                         if (url == uri) {
                             downloadTaskResult =
                                 DownloadTaskResult(id = id, url = uri, status = status)
@@ -219,7 +166,7 @@ class DownloadHandler constructor(private val context: Context) {
         return downloadTaskResult
     }
 
-    private fun queryStatus(url: String, downloadId: Long): DownloadTaskResult? {
+    protected fun queryStatus(url: String, downloadId: Long): DownloadTaskResult? {
         var downloadTaskResult: DownloadTaskResult? = null
         val downloadManager =
             context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager?
@@ -241,7 +188,6 @@ class DownloadHandler constructor(private val context: Context) {
                             cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
                         val total =
                             cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
-                        Logger.d("uri:$uri,localUri:$localUri,status:$status,current=$current,total=$total")
                         if (url == uri || id == downloadId) {
                             downloadTaskResult = DownloadTaskResult(
                                 id = id,
@@ -266,5 +212,4 @@ class DownloadHandler constructor(private val context: Context) {
         }
         return downloadTaskResult
     }
-
 }

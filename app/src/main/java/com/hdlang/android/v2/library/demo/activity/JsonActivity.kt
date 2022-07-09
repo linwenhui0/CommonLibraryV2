@@ -11,15 +11,18 @@ import com.hdlang.android.v2.library.demo.R
 import com.hdlang.android.v2.library.demo.logic.network.Request
 import com.hdlang.android.v2.library.demo.logic.network.WeatherApi
 import com.hdlang.android.v2.library.demo.model.UserBean
-import com.hdlang.android.v2.library.logic.common.download.DownloadHandler
+import com.hdlang.android.v2.library.logic.common.download.DownloadFlowHandler
+import com.hdlang.android.v2.library.logic.common.download.DownloadLiveDataHandler
 import com.hdlang.android.v2.library.model.NetworkData
 import com.hdlang.android.v2.library.utils.ImageUtils
 import com.hdlang.android.v2.library.utils.JsonUtils
 import com.hdlang.android.v2.library.utils.StringUtils
 import com.orhanobut.logger.Logger
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
@@ -78,51 +81,67 @@ class JsonActivity : AppCompatActivity() {
 //                Logger.i("code(${it.code}) data(${it.data})")
 //            }
 
-              request.asyncWithFlow(String::class.java, api).collect {
+            request.asyncWithFlow(String::class.java, api).collect {
 
                 if (it is NetworkData) {
                     Logger.i("code(${it.code}) data(${it.data})")
                 }
             }
-            }
         }
+    }
 
-        private fun createUserBeanData(
-            name: String,
-            age: String,
-            phone: String,
-            email: String
-        ): JSONObject {
-            val obj = JSONObject()
-            obj.put("name", name)
-            obj.put("age", age)
-            obj.put("phone", phone)
-            obj.put("email", email)
-            return obj
-        }
+    private fun createUserBeanData(
+        name: String,
+        age: String,
+        phone: String,
+        email: String
+    ): JSONObject {
+        val obj = JSONObject()
+        obj.put("name", name)
+        obj.put("age", age)
+        obj.put("phone", phone)
+        obj.put("email", email)
+        return obj
+    }
 
-        fun onLoadImageClick(v: View) {
-            val image = findViewById<ImageView>(R.id.image)
-            ImageUtils.load(
-                url = "https://t7.baidu.com/it/u=3676218341,3686214618&fm=193&f=GIF",
-                v = image
-            )
-        }
+    fun onLoadImageClick(v: View) {
+        val image = findViewById<ImageView>(R.id.image)
+        ImageUtils.load(
+            url = "https://t7.baidu.com/it/u=3676218341,3686214618&fm=193&f=GIF",
+            v = image
+        )
+    }
 
-        fun onWechatDownloadClick(v: View) {
-            val url =
-                "https://5432f2ec4991d23431f0859c8d9730f4.rdt.tfogc.com:49156/dldir1.qq.com/weixin/android/weixin8023android2160_arm64_1.apk?mkey=62a5972525de8780560410fc0c252385&arrive_key=262185570182&cip=112.49.232.227&proto=https"
-            val downloadHandler = DownloadHandler(this)
-            downloadHandler.downloadTaskResultLiveData.observe(this) {
+    @OptIn(FlowPreview::class)
+    fun onWechatDownloadClick(v: View) {
+        val url =
+            "https://5432f2ec4991d23431f0859c8d9730f4.rdt.tfogc.com:49156/dldir1.qq.com/weixin/android/weixin8023android2160_arm64_1.apk?mkey=62a5972525de8780560410fc0c252385&arrive_key=262185570182&cip=112.49.232.227&proto=https"
+            val downloadLiveDataHandler = DownloadLiveDataHandler(this)
+            downloadLiveDataHandler.downloadTaskResultLiveData.observe(this) {
                 if (it.status == DownloadManager.STATUS_SUCCESSFUL && StringUtils.isNotEmpty(it.fileLocalUri)) {
                     val uri = Uri.parse(it.fileLocalUri)
                     Logger.i("file = ${uri.path}")
                 }
                 Logger.i("status = ${it.status} , url = ${it.url} , file = ${it.fileLocalUri} , progress = ${it.getProgress()}")
             }
-            downloadHandler.download(
+            downloadLiveDataHandler.download(
                 url = url,
                 saveFileName = "wechat.apk"
             )
-        }
+
+//        GlobalScope.launch(context = Dispatchers.IO) {
+//            val downloadLiveDataHandler = DownloadFlowHandler(application)
+//            downloadLiveDataHandler.download(
+//                url = url,
+//                saveFileName = "wechat.apk"
+//            ).debounce(2000).collect {
+//                if (it.status == DownloadManager.STATUS_SUCCESSFUL && StringUtils.isNotEmpty(it.fileLocalUri)) {
+//                    val uri = Uri.parse(it.fileLocalUri)
+//                    Logger.i("file = ${uri.path}")
+//                }
+//                Logger.i("status = ${it.status} , url = ${it.url} , file = ${it.fileLocalUri} , progress = ${it.getProgress()}")
+//
+//            }
+//        }
     }
+}
