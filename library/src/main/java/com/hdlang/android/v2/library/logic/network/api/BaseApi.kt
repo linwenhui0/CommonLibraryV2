@@ -2,8 +2,10 @@ package com.hdlang.android.v2.library.logic.network.api
 
 import com.hdlang.android.v2.library.logic.network.intercept.IResponseIntercept
 
+/**
+ * 请求api封装
+ */
 abstract class BaseApi {
-
 
     abstract val requestClientTag: String
 

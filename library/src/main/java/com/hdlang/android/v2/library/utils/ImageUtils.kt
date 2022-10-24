@@ -5,6 +5,9 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 
+/**
+ * 图片加载
+ */
 object ImageUtils {
 
     fun load(url: String?, v: ImageView?, placeholder: Int? = 0, error: Int? = 0) {

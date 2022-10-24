@@ -10,8 +10,16 @@ import java.util.Collection
 abstract class ObjectRecyclerAdapter<T>(protected val context: Context) :
     ObjectBaseRecyclerAdapter<T, RecyclerViewHolder>() {
 
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewHolder {
         val v = LayoutInflater.from(context).inflate(viewType, parent, false)
-        return RecyclerViewHolder(v)
+        val holder = RecyclerViewHolder(v)
+        holder.setOnItemClickListener(listener)
+        return holder
     }
+
+    override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
+        holder.setOnItemClickListener(listener)
+    }
+
 }

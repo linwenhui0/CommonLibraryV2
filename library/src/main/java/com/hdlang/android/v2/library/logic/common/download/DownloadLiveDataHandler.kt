@@ -16,6 +16,9 @@ import java.io.File
 import java.io.InputStream
 import kotlin.Exception
 
+/**
+ * 使用LiveData下载管理
+ */
 class DownloadLiveDataHandler constructor(context: Context) : DownloadHandler(context = context) {
 
 

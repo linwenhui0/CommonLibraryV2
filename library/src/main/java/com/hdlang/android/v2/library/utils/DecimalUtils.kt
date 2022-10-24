@@ -4,8 +4,14 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
+/**
+ * 金额处理类
+ */
 object DecimalUtils {
 
+    /**
+     * 加
+     */
     fun add(decimals: Array<String>): BigDecimal {
         val scale = 2
         val roundingMode = RoundingMode.HALF_UP
@@ -18,6 +24,9 @@ object DecimalUtils {
         return add(roundingMode, scale, values)
     }
 
+    /**
+     * 加
+     */
     fun add(roundingMode: RoundingMode, scale: Int, decimals: MutableList<BigDecimal>): BigDecimal {
         var result = BigDecimal(0)
         result.setScale(scale, roundingMode)
@@ -31,6 +40,9 @@ object DecimalUtils {
         return result
     }
 
+    /**
+     * 减
+     */
     fun subtract(decimals: Array<String>): BigDecimal {
         val scale = 2
         val roundingMode = RoundingMode.HALF_UP
@@ -43,6 +55,9 @@ object DecimalUtils {
         return subtract(roundingMode, scale, values)
     }
 
+    /**
+     * 减
+     */
     fun subtract(
         roundingMode: RoundingMode,
         scale: Int,
@@ -60,6 +75,9 @@ object DecimalUtils {
         return result
     }
 
+    /**
+     * 乘
+     */
     fun multiply(decimals: Array<String>): BigDecimal {
         val scale = 2
         val roundingMode = RoundingMode.HALF_UP
@@ -72,6 +90,9 @@ object DecimalUtils {
         return multiply(roundingMode, scale, values)
     }
 
+    /**
+     * 乘
+     */
     fun multiply(
         roundingMode: RoundingMode,
         scale: Int,
@@ -89,6 +110,9 @@ object DecimalUtils {
         return result
     }
 
+    /**
+     * 除
+     */
     fun divide(decimals: Array<String>): BigDecimal {
         val scale = 2
         val roundingMode = RoundingMode.HALF_UP
@@ -101,6 +125,9 @@ object DecimalUtils {
         return divide(roundingMode, scale, values)
     }
 
+    /**
+     * 除
+     */
     fun divide(
         roundingMode: RoundingMode,
         scale: Int,
@@ -118,6 +145,9 @@ object DecimalUtils {
         return result
     }
 
+    /**
+     * 金额格式化
+     */
     fun moneyFormat(money: Long?): String {
         if (money != null) {
             val moneyDecimalFormat = DecimalFormat("0.00")

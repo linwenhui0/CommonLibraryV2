@@ -18,6 +18,9 @@ import java.io.File
 import java.io.InputStream
 import kotlin.Exception
 
+/**
+ * 使用Flow下载管理
+ */
 class DownloadFlowHandler constructor(context: Context) : DownloadHandler(context = context) {
 
     /**

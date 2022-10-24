@@ -7,6 +7,9 @@ import com.orhanobut.logger.Logger
 import com.tencent.mmkv.*
 import java.io.File
 
+/**
+ * 初始化MMKV
+ */
 class MMKVInitializer : Initializer<Unit>, MMKVHandler, MMKVContentChangeNotification {
     override fun create(context: Context) {
         val dir = File(context.filesDir, "mmkv").absolutePath

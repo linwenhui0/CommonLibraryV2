@@ -13,6 +13,9 @@ import okhttp3.Callback
 import okhttp3.Response
 import java.io.IOException
 
+/**
+ * 响应基类
+ */
 abstract class BaseResponse<T>(
     private val clazz: Class<T>,
     private val api: BaseApi,

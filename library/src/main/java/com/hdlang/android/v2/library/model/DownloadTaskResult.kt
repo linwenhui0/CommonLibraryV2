@@ -3,6 +3,9 @@ package com.hdlang.android.v2.library.model
 import android.app.DownloadManager
 import com.hdlang.android.v2.library.utils.constants.DownloadConstants
 
+/**
+ * 下载进度实体类
+ */
 data class DownloadTaskResult(val id: Long, val url: String, val status: Int) {
     var fileLocalUri: String = ""
     var md5: String = ""

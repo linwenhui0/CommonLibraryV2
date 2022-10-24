@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.FlowCollector
 import java.io.File
 import java.io.InputStream
 
+/**
+ * 下载管理
+ */
 open class DownloadHandler(protected val context: Context) {
     protected val downloadManager: DownloadManager? by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
         context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager?

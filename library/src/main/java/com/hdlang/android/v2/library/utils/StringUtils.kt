@@ -5,6 +5,9 @@ import java.io.FileInputStream
 import java.io.InputStream
 import java.security.MessageDigest
 
+/**
+ * 字符串工具类
+ */
 object StringUtils {
 
     fun isEmpty(value: String?): Boolean {

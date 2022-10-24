@@ -2,6 +2,9 @@ package com.hdlang.android.v2.library.utils
 
 import com.tencent.mmkv.MMKV
 
+/**
+ * 缓存处理
+ */
 object CacheUtils {
     private val MMKV_ID = "hmark_interprocess"
     private var mmkv: MMKV? = null

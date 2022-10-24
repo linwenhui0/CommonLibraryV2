@@ -5,8 +5,12 @@ import android.database.DataSetObserver
 import android.view.View
 import com.hdlang.android.v2.library.view.adapter.IAdapter
 
+/**
+ * 排行版处理
+ */
 abstract class BaseRankAdapter<T> : IAdapter {
-    val list = ArrayList<T>()
+
+    protected val list = ArrayList<T>()
 
 
     fun get(position: Int): T? {

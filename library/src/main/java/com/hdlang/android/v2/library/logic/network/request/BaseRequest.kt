@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.*
 import okhttp3.*
 import java.util.concurrent.TimeUnit
 
+/**
+ * 请求基类
+ */
 abstract class BaseRequest {
     companion object {
         private val clients = HashMap<String, OkHttpClient?>()
